@@ -1,5 +1,5 @@
 export class HashMap {
-    constructor(capacity = 10, loadFactor = 0.75) {
+    constructor(capacity = 16, loadFactor = 0.75) {
         this.capacity = capacity;
         this.loadFactor = loadFactor;
         this.buckets = new Array(this.capacity).fill(null).map(() => []);
@@ -13,7 +13,7 @@ export class HashMap {
             hashCode = hashCode % this.capacity;
         }
 
-        console.log(key, ", ", hashCode);
+        // console.log(key, ", ", hashCode); //for testing
         return hashCode;
     }
 
@@ -31,7 +31,26 @@ export class HashMap {
         }
         // If key doesn't exist, add new entry
         bucket.push([key, value]);
-        //check and implement bucket growth.
+
+         // Track size and check load factor
+         this.size = (this.size || 0) + 1;
+         if (this.size / this.capacity > this.loadFactor) {
+             this.resize();
+         }
+    }
+    
+    resize(){
+        const oldBuckets = this.buckets;
+        this.capacity *= 2;
+        this.buckets = new Array(this.capacity).fill(null).map(() => []);
+        this.size = 2; 
+
+        //rehashing
+        oldBuckets.forEach(bucket => {
+            bucket.forEach(([key, value]) => {
+                this.set(key, value);
+            });
+        });
     }
 
     get(key) {
